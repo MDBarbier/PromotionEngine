@@ -1,4 +1,5 @@
 using promotionengine.engine;
+using promotionengine.interfaces;
 using promotionengine.models;
 using System.Collections.Generic;
 using Xunit;
@@ -8,7 +9,7 @@ namespace promotionengine.tests
     public class promotiontests
     {
         private List<Product> ProductList = new List<Product>();
-        private List<Promotion> PromotionList = new List<Promotion>();
+        private List<IPromotion> PromotionList = new List<IPromotion>();
 
         [Theory]
         [InlineData("ScenarioA", 1, 1, 1, 0, 100.00)] //No promotions matched   
@@ -47,11 +48,8 @@ namespace promotionengine.tests
             Product productC = new Product() { SkuName = 'C', UnitPrice = 20.00f };
             Product productD = new Product() { SkuName = 'D', UnitPrice = 15.00f };
             ProductList = new List<Product>() { productA, productB, productC, productD };
-
-            Promotion promotion1 = new Promotion() { SingleSku = true, CombinedSku = false, ApplicableSkus = new char[] { 'A' }, NumUnitsRequired = 3, FixedPrice = 130.00f, PercentageDiscount = 0.00f };
-            Promotion promotion2 = new Promotion() { SingleSku = true, CombinedSku = false, ApplicableSkus = new char[] { 'B' }, NumUnitsRequired = 2, FixedPrice = 45.00f, PercentageDiscount = 0.00f };
-            Promotion promotion3 = new Promotion() { SingleSku = false, CombinedSku = true, ApplicableSkus = new char[] { 'C', 'D' }, NumUnitsRequired = 1, FixedPrice = 30.00f, PercentageDiscount = 0.00f};
-            PromotionList = new List<Promotion>() { promotion1, promotion2, promotion3 };
+            
+            PromotionList = new List<IPromotion>() { new Promotion1(), new Promotion2(), new Promotion3()};
         }
     }
 }

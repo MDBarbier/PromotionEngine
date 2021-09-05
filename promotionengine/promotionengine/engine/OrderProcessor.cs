@@ -1,4 +1,5 @@
 ﻿using promotionengine.exceptions;
+using promotionengine.interfaces;
 using promotionengine.models;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ namespace promotionengine.engine
     public class OrderProcessor
     {
         public List<Product> ProductList { get; set; }
-        public List<Promotion> PromotionList { get; set; }
+        public List<IPromotion> PromotionList { get; set; }
 
         public void LoadProducts(List<Product> productsList)
         {
@@ -20,7 +21,7 @@ namespace promotionengine.engine
             ProductList = productsList;
         }
 
-        public void LoadPromotions(List<Promotion> promotionList)
+        public void LoadPromotions(List<IPromotion> promotionList)
         {
             foreach (var promotion in promotionList)
             {
