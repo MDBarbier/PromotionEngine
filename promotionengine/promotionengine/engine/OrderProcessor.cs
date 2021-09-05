@@ -33,16 +33,48 @@ namespace promotionengine.engine
 
         public OrderOutput ProcessOrder(Order order)
         {
-            Dictionary<Product, int> matchedProductsOnOrder = new Dictionary<Product, int>();            
+            Dictionary<Product, int> matchedProductsOnOrder = CollateOrderItems(order);
+            float totalPrice = CalculateTotalPrice(matchedProductsOnOrder);
+            return new OrderOutput() { CustomerName = order.CustomerName, OrderNumber = order.OrderNumber, TotalPrice = totalPrice };
+        }
+
+        private float CalculateTotalPrice(Dictionary<Product, int> matchedProductsOnOrder)
+        {
+            var totalPrice = CalculateTotalGrossPrice(matchedProductsOnOrder);
+            totalPrice = ProcessPromotions(matchedProductsOnOrder, totalPrice);
+            return totalPrice;
+        }
+
+        private float ProcessPromotions(Dictionary<Product, int> matchedProductsOnOrder, float totalPrice)
+        {
+            foreach (var promotion in PromotionList)
+            {
+                totalPrice = promotion.CheckAndApplyPromotion(matchedProductsOnOrder, totalPrice);
+            }
+
+            return totalPrice;
+        }
+
+        private static float CalculateTotalGrossPrice(Dictionary<Product, int> matchedProductsOnOrder)
+        {
             float totalPrice = 0.00f;
 
-            //loop through order items
-            foreach (var orderItem in order.OrderItems)
+            foreach (var item in matchedProductsOnOrder)
             {
-                //match SKU against a product
-                var matchedProduct = ProductList.FirstOrDefault(product => product.SkuName == orderItem.Sku);
+                totalPrice += item.Key.UnitPrice * item.Value;
+            }
 
-                //add to list of order items
+            return totalPrice;
+        }
+
+        private Dictionary<Product, int> CollateOrderItems(Order order)
+        {
+            Dictionary<Product, int> matchedProductsOnOrder = new Dictionary<Product, int>();
+            
+            foreach (var orderItem in order.OrderItems)
+            {                
+                var matchedProduct = ProductList.FirstOrDefault(product => product.SkuName == orderItem.Sku);
+                                
                 if (matchedProduct == null)
                 {
                     throw new UnknownSkuException(orderItem.Sku);
@@ -51,22 +83,9 @@ namespace promotionengine.engine
                 {
                     matchedProductsOnOrder.Add(matchedProduct, orderItem.Amount);
                 }
-            }            
-
-            //calculate total gross price
-            foreach (var item in matchedProductsOnOrder)
-            {
-                totalPrice += item.Key.UnitPrice * item.Value;
             }
 
-            foreach (var promotion in PromotionList)
-            {
-                //Is promotion valid based on combinedOrderItems?
-                totalPrice = promotion.CheckAndApplyPromotion(matchedProductsOnOrder, totalPrice);
-            }
-
-            //return output
-            return new OrderOutput() { CustomerName = order.CustomerName, OrderNumber = order.OrderNumber, TotalPrice = totalPrice };
+            return matchedProductsOnOrder;
         }
     }
 }

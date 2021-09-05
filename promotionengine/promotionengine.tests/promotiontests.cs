@@ -21,6 +21,9 @@ namespace promotionengine.tests
         [InlineData("ScenarioG", 6, 0, 2, 2, 320.00)] //Matches promotion 1 (x2) and 3 (x2)
         [InlineData("ScenarioH", 0, 8, 0, 0, 180.00)] //Matches promotion 1 (x2) and 3 (x2)
         [InlineData("ScenarioI", 6, 8, 2, 2, 500.00)] //Matches promotion 1 (x2), 2 (x4) and 3 (x2)
+        [InlineData("ScenarioI", 0, 8, 2, 2, 240.00)] //Matches promotion 2 (x4) and 3 (x2)
+        [InlineData("ScenarioI", 0, 0, 2, 1, 50.00)] //Matches promotion 3 (x1)
+        [InlineData("ScenarioI", 2, 0, 2, 1, 150.00)] //Matches promotion 3 (x1)
         public void ScenarioTest(string testScenarioName, int amountSkuA, int amountSkuB, int amountSkuC, int amountSkuD, float expectedTotalPrice)
         {
             //Setup
