@@ -8,9 +8,9 @@ namespace promotionengine.models
 {
     public class Promotion1: IPromotion
     {
-        public char[] ApplicableSkus { get; set; } = new char[] { 'A' };
-        public int NumUnitsRequired { get; set; } = 3;
-        public float FixedPrice { get; set; } = 130.00f;
+        public char[] ApplicableSkus { get; } = new char[] { 'A' };
+        public int NumUnitsRequired { get; } = 3;
+        public float FixedPrice { get; } = 130.00f;
 
         void IPromotion.Validate()
         {
@@ -37,9 +37,7 @@ namespace promotionengine.models
 
         float IPromotion.CheckAndApplyPromotion(Dictionary<Product, int> matchedProductsOnOrder, float totalPrice)
         {   
-            totalPrice = ApplyDiscountForSingleSkuPromotion(matchedProductsOnOrder, ref totalPrice);
-            
-            return totalPrice;
+            return ApplyDiscountForSingleSkuPromotion(matchedProductsOnOrder, ref totalPrice);
         }
 
         private float ApplyDiscountForSingleSkuPromotion(Dictionary<Product, int> matchedProductsOnOrder, ref float totalPrice)
@@ -55,18 +53,16 @@ namespace promotionengine.models
                 totalUnitsOfMatchedSku += orderProduct.Value;
             }
 
+            return CalculateDiscountedPrice(ref totalPrice, matchedSkuProductsOnOrder, totalUnitsOfMatchedSku);
+        }
+
+        private float CalculateDiscountedPrice(ref float totalPrice, List<KeyValuePair<Product, int>> matchedSkuProductsOnOrder, int totalUnitsOfMatchedSku)
+        {
             float numTimesPromotionAchieved = (totalUnitsOfMatchedSku / NumUnitsRequired);
             float normalPrice = (numTimesPromotionAchieved * NumUnitsRequired) * matchedSkuProductsOnOrder.First().Key.UnitPrice;
             float discountedPrice = numTimesPromotionAchieved * FixedPrice;
-
-            totalPrice -= normalPrice; //Subtract full cost
-            totalPrice += discountedPrice; //Add discounted price
-            return totalPrice;
-        }
-
-        private static List<KeyValuePair<Product, int>> GetNumberOfMatchedSkuItems(Dictionary<Product, int> matchedProductsOnOrder, char applicableSku)
-        {
-            return matchedProductsOnOrder.Where(a => a.Key.SkuName == applicableSku && a.Value > 0).ToList();
+            totalPrice -= normalPrice;
+            return totalPrice += discountedPrice;            
         }
 
     }

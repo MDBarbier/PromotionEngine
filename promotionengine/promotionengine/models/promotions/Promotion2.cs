@@ -8,9 +8,9 @@ namespace promotionengine.models
 {
     public class Promotion2: IPromotion
     {
-        public char[] ApplicableSkus { get; set; } = new char[] { 'B' };
-        public int NumUnitsRequired { get; set; } = 2;
-        public float FixedPrice { get; set; } = 45.00f;
+        public char[] ApplicableSkus { get; } = new char[] { 'B' };
+        public int NumUnitsRequired { get; } = 2;
+        public float FixedPrice { get; } = 45.00f;
 
         void IPromotion.Validate()
         {
@@ -50,10 +50,14 @@ namespace promotionengine.models
                 totalUnitsOfMatchedSku += orderProduct.Value;
             }
 
+            return CalculateDiscountedPrice(ref totalPrice, matchedSkuProductsOnOrder, totalUnitsOfMatchedSku);
+        }
+
+        private float CalculateDiscountedPrice(ref float totalPrice, List<KeyValuePair<Product, int>> matchedSkuProductsOnOrder, int totalUnitsOfMatchedSku)
+        {
             float numTimesPromotionAchieved = (totalUnitsOfMatchedSku / NumUnitsRequired);
             float normalPrice = (numTimesPromotionAchieved * NumUnitsRequired) * matchedSkuProductsOnOrder.First().Key.UnitPrice;
             float discountedPrice = numTimesPromotionAchieved * FixedPrice;
-
             totalPrice -= normalPrice;
             return totalPrice += discountedPrice;
         }
