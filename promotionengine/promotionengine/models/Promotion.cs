@@ -38,5 +38,56 @@ namespace promotionengine.models
                 throw new PromotionValidationException(stringBuilder.ToString());
             }
         }
+
+        internal bool CheckValidity(Dictionary<Product, int> matchedProductsOnOrder)
+        {
+            bool validity;
+
+            if (SingleSku)
+            {
+                validity = CheckSingleSkuValidity(matchedProductsOnOrder);
+            }
+            else if (CombinedSku)
+            {
+                validity = CheckMultiSkuValidity(matchedProductsOnOrder);
+            }
+            else
+            {
+                throw new PromotionValidationException("Either SingleSku or Combined Sku must be true");
+            }
+
+            return validity;
+        }
+
+        private bool CheckMultiSkuValidity(Dictionary<Product, int> matchedProductsOnOrder)
+        {
+            foreach (var applicableSku in ApplicableSkus)
+            {
+                var matchedSkuProductsOnOrder = matchedProductsOnOrder.Where(a => a.Key.SkuName == applicableSku).ToList();
+
+                if (matchedSkuProductsOnOrder.Count == 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool CheckSingleSkuValidity(Dictionary<Product, int> matchedProductsOnOrder)
+        {
+            var applicableSku = ApplicableSkus[0];
+
+            var matchedSkuProductsOnOrder = matchedProductsOnOrder.Where(a => a.Key.SkuName == applicableSku).ToList();
+
+            int totalUnitsOfMatchedSku = 0;
+
+            foreach (var orderProduct in matchedSkuProductsOnOrder)
+            {
+                totalUnitsOfMatchedSku += orderProduct.Value;
+            }
+
+            return totalUnitsOfMatchedSku >= NumUnitsRequired ? true : false;
+        }
     }
 }

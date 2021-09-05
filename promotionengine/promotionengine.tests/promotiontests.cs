@@ -12,7 +12,7 @@ namespace promotionengine.tests
         private List<Promotion> PromotionList = new List<Promotion>();
 
         [Theory]
-        [InlineData("ScenarioA", 1, 1, 1, 0, 100.00)]        
+        [InlineData("ScenarioA", 1, 1, 1, 0, 100.00)]   
         [InlineData("ScenarioB", 5, 5, 1, 0, 370.00)]
         [InlineData("ScenarioC", 3, 5, 1, 1, 280.00)]
         public void ScenarioTest(string testScenarioName, int amountSkuA, int amountSkuB, int amountSkuC, int amountSkuD, float expectedTotalPrice)
@@ -38,9 +38,9 @@ namespace promotionengine.tests
         private void SetupTestData()
         {
             Product productA = new Product() { SkuName = 'A', UnitPrice = 50.00f };
-            Product productB = new Product() { SkuName = 'B', UnitPrice = 50.00f };
-            Product productC = new Product() { SkuName = 'C', UnitPrice = 50.00f };
-            Product productD = new Product() { SkuName = 'D', UnitPrice = 50.00f };
+            Product productB = new Product() { SkuName = 'B', UnitPrice = 30.00f };
+            Product productC = new Product() { SkuName = 'C', UnitPrice = 20.00f };
+            Product productD = new Product() { SkuName = 'D', UnitPrice = 15.00f };
             ProductList = new List<Product>() { productA, productB, productC, productD };
 
             Promotion promotion1 = new Promotion() { SingleSku = true, CombinedSku = false, ApplicableSkus = new char[] { 'A' }, NumUnitsRequired = 3, FixedPrice = 130.00f, PercentageDiscount = 0.00f };

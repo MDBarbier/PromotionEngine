@@ -1,4 +1,5 @@
-﻿using promotionengine.models;
+﻿using promotionengine.exceptions;
+using promotionengine.models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +35,44 @@ namespace promotionengine.engine
 
         public OrderOutput ProcessOrder(Order order)
         {
-            return new OrderOutput();
+            Dictionary<Product, int> matchedProductsOnOrder = new Dictionary<Product, int>();
+            List<Promotion> activePromotions = new List<Promotion>();
+            float totalPrice = 0.00f;
+
+            //loop through order items
+            foreach (var orderItem in order.OrderItems)
+            {
+                //match SKU against a product
+                var matchedProduct = ProductList.FirstOrDefault(product => product.SkuName == orderItem.Sku);
+
+                //add to list of order items
+                if (matchedProduct == null)
+                {
+                    throw new UnknownSkuException(orderItem.Sku);
+                }
+                else
+                {
+                    matchedProductsOnOrder.Add(matchedProduct, orderItem.Amount);
+                }
+            }            
+                        
+            foreach (var promotion in PromotionList)
+            {
+                //Is promotion valid based on combinedOrderItems?
+                if (promotion.CheckValidity(matchedProductsOnOrder))
+                {
+                    activePromotions.Add(promotion);
+                }                
+            }
+
+            //calculate total gross price
+            foreach (var item in matchedProductsOnOrder)
+            {
+                totalPrice += item.Key.UnitPrice * item.Value;
+            }
+
+            //return output
+            return new OrderOutput() { CustomerName = order.CustomerName, OrderNumber = order.OrderNumber, TotalPrice = totalPrice };
         }
     }
 }
