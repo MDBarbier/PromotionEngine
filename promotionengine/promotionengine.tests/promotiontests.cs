@@ -40,7 +40,7 @@ namespace promotionengine.tests
 
             Promotion promotion1 = new Promotion() { SingleSku = true, CombinedSku = false, ApplicableSkus = new char[] { 'A' }, NumUnitsRequired = 3, FixedPrice = 130.00, PercentageDiscount = 0.00 };
             Promotion promotion2 = new Promotion() { SingleSku = true, CombinedSku = false, ApplicableSkus = new char[] { 'B' }, NumUnitsRequired = 2, FixedPrice = 45.00, PercentageDiscount = 0.00 };
-            Promotion promotion3 = new Promotion() { SingleSku = true, CombinedSku = false, ApplicableSkus = new char[] { 'C', 'D' }, NumUnitsRequired = 1, FixedPrice = 30.00, PercentageDiscount = 0.00 };
+            Promotion promotion3 = new Promotion() { SingleSku = false, CombinedSku = true, ApplicableSkus = new char[] { 'C', 'D' }, NumUnitsRequired = 1, FixedPrice = 30.00, PercentageDiscount = 0.00 };
             PromotionList = new List<Promotion>() { promotion1, promotion2, promotion3 };
         }
     }
