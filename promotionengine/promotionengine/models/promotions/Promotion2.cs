@@ -42,10 +42,7 @@ namespace promotionengine.models
 
         private float ApplyDiscountForSingleSkuPromotion(Dictionary<Product, int> matchedProductsOnOrder, ref float totalPrice)
         {
-            var applicableSku = ApplicableSkus[0];
-
-            var matchedSkuProductsOnOrder = matchedProductsOnOrder.Where(a => a.Key.SkuName == applicableSku).ToList();
-
+            var matchedSkuProductsOnOrder = matchedProductsOnOrder.Where(a => a.Key.SkuName == ApplicableSkus[0]).ToList();
             int totalUnitsOfMatchedSku = 0;
 
             foreach (var orderProduct in matchedSkuProductsOnOrder)
@@ -57,9 +54,8 @@ namespace promotionengine.models
             float normalPrice = (numTimesPromotionAchieved * NumUnitsRequired) * matchedSkuProductsOnOrder.First().Key.UnitPrice;
             float discountedPrice = numTimesPromotionAchieved * FixedPrice;
 
-            totalPrice -= normalPrice; //Subtract full cost
-            totalPrice += discountedPrice; //Add discounted price
-            return totalPrice;
+            totalPrice -= normalPrice;
+            return totalPrice += discountedPrice;
         }
     }
 }
