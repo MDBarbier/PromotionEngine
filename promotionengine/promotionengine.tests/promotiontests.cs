@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using promotionengine.engine;
 using promotionengine.models;
+using System.Collections.Generic;
 
 namespace promotionengine.tests
 {
@@ -18,8 +19,9 @@ namespace promotionengine.tests
         {
             //Setup
             SetupTestData();
-            LoadProducts(ProductList);
-            LoadPromotions(PromotionList);
+            OrderProcessor orderProcessor = new OrderProcessor();
+            orderProcessor.LoadProducts(ProductList);
+            orderProcessor.LoadPromotions(PromotionList);            
             Order order = new Order() { new OrderItem() { Sku = 'A', Amount = amountSkuA }, new OrderItem() { Sku = 'B', Amount = amountSkuB },
                 new OrderItem() { Sku = 'C', Amount = amountSkuD }, new OrderItem() { Sku = 'D', Amount = amountSkuD }};            
 
