@@ -1,9 +1,7 @@
 ﻿using promotionengine.exceptions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace promotionengine.models
 {
@@ -78,17 +76,29 @@ namespace promotionengine.models
 
                 if (CheckValidityOfMultiSku(skusPresent))
                 {
-                    var ordinaryPriceOfAllItems = 0.00f;
-
-                    foreach (var skuItem in ApplicableSkus)
+                    int numTimesMatches = 0;
+                    //how many times do the matched skus appear
+                    foreach (var sku in ApplicableSkus)
                     {
-                        var match = matchedProductsOnOrder.Where(order => order.Key.SkuName == skuItem).FirstOrDefault();
+                        List<KeyValuePair<Product, int>> matchedSkuProductsOnOrder = GetNumberOfMatchedSkuItems(matchedProductsOnOrder, sku);
 
-                        ordinaryPriceOfAllItems += match.Key.UnitPrice;
+                        int totalNumMatchedSkus = 0;
+                        foreach (var order in matchedSkuProductsOnOrder)
+                        {
+                            totalNumMatchedSkus += order.Value;
+                        }
+
+                        if (numTimesMatches == 0 || totalNumMatchedSkus <= numTimesMatches)
+                        {
+                            numTimesMatches = totalNumMatchedSkus;
+                        }
+
                     }
 
-                    var discount = ordinaryPriceOfAllItems - FixedPrice;
-                    totalPrice -= discount;
+                    for (int i = 0; i < numTimesMatches; i++)
+                    {
+                        totalPrice = ApplyDiscountForMultiSku(matchedProductsOnOrder, totalPrice); 
+                    }
                 }
             }
             else
@@ -96,6 +106,22 @@ namespace promotionengine.models
                 throw new PromotionValidationException("Either SingleSku or Combined Sku must be true");
             }
 
+            return totalPrice;
+        }
+
+        private float ApplyDiscountForMultiSku(Dictionary<Product, int> matchedProductsOnOrder, float totalPrice)
+        {
+            var ordinaryPriceOfAllItems = 0.00f;
+
+            foreach (var skuItem in ApplicableSkus)
+            {
+                var match = matchedProductsOnOrder.Where(order => order.Key.SkuName == skuItem).FirstOrDefault();
+
+                ordinaryPriceOfAllItems += match.Key.UnitPrice;
+            }
+
+            var discount = ordinaryPriceOfAllItems - FixedPrice;
+            totalPrice -= discount;
             return totalPrice;
         }
 

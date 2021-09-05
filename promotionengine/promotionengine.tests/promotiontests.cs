@@ -1,8 +1,7 @@
-using System;
-using Xunit;
 using promotionengine.engine;
 using promotionengine.models;
 using System.Collections.Generic;
+using Xunit;
 
 namespace promotionengine.tests
 {
@@ -12,10 +11,15 @@ namespace promotionengine.tests
         private List<Promotion> PromotionList = new List<Promotion>();
 
         [Theory]
-        [InlineData("ScenarioA", 1, 1, 1, 0, 100.00)]   
-        [InlineData("ScenarioB", 5, 5, 1, 0, 370.00)]
-        [InlineData("ScenarioC", 3, 5, 1, 1, 280.00)]
-        [InlineData("ScenarioD", 3, 1, 1, 0, 180.00)] //Should match promotion 1 only
+        [InlineData("ScenarioA", 1, 1, 1, 0, 100.00)] //No promotions matched   
+        [InlineData("ScenarioB", 5, 5, 1, 0, 370.00)] //Matches promotion 1 and 2
+        [InlineData("ScenarioC", 3, 5, 1, 1, 280.00)] //Match promotions 1, 2 and 3
+        [InlineData("ScenarioD", 3, 1, 1, 0, 180.00)] //Matches promotion 1 only
+        [InlineData("ScenarioE", 6, 0, 0, 0, 260.00)] //Matches promotion 1 (x2)
+        [InlineData("ScenarioF", 6, 0, 1, 1, 290.00)] //Matches promotion 1 (x2) and 3
+        [InlineData("ScenarioG", 6, 0, 2, 2, 320.00)] //Matches promotion 1 (x2) and 3 (x2)
+        [InlineData("ScenarioH", 0, 8, 0, 0, 180.00)] //Matches promotion 1 (x2) and 3 (x2)
+        [InlineData("ScenarioI", 6, 8, 2, 2, 500.00)] //Matches promotion 1 (x2), 2 (x4) and 3 (x2)
         public void ScenarioTest(string testScenarioName, int amountSkuA, int amountSkuB, int amountSkuC, int amountSkuD, float expectedTotalPrice)
         {
             //Setup
