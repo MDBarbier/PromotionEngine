@@ -8,5 +8,6 @@ namespace promotionengine.models
 {
     public class OrderOutput
     {
+        public float TotalPrice { get; set; }
     }
 }

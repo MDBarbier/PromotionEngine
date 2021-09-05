@@ -8,5 +8,11 @@ namespace promotionengine.models
 {
     public class Promotion
     {
+        public bool SingleSku { get; set; }
+        public bool CombinedSku { get; set; }
+        public char[] ApplicableSkus { get; set; }
+        public int NumUnitsRequired { get; set; }
+        public float FixedPrice { get; set; }
+        public float PercentageDiscount { get; set; }
     }
 }
