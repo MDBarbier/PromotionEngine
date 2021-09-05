@@ -39,33 +39,71 @@ namespace promotionengine.models
             }
         }
 
-        internal bool CheckValidity(Dictionary<Product, int> matchedProductsOnOrder)
+        internal float CheckAndApplyPromotion(Dictionary<Product, int> matchedProductsOnOrder, float totalPrice)
         {
-            bool validity;
-
             if (SingleSku)
             {
-                validity = CheckSingleSkuValidity(matchedProductsOnOrder);
+                var applicableSku = ApplicableSkus[0];
+
+                var matchedSkuProductsOnOrder = matchedProductsOnOrder.Where(a => a.Key.SkuName == applicableSku).ToList();
+
+                int totalUnitsOfMatchedSku = 0;
+
+                foreach (var orderProduct in matchedSkuProductsOnOrder)
+                {
+                    totalUnitsOfMatchedSku += orderProduct.Value;
+                }
+
+                float numTimesPromotionAchieved = (totalUnitsOfMatchedSku / NumUnitsRequired);
+                float normalPrice = (numTimesPromotionAchieved * NumUnitsRequired) * matchedSkuProductsOnOrder.First().Key.UnitPrice;
+                float discountedPrice = numTimesPromotionAchieved * FixedPrice;
+
+                totalPrice -= normalPrice; //Subtract full cost
+                totalPrice += discountedPrice; //Add discounted price
+                return totalPrice;
             }
             else if (CombinedSku)
-            {
-                validity = CheckMultiSkuValidity(matchedProductsOnOrder);
+            {                
+                Dictionary<char, bool> skusPresent = new Dictionary<char, bool>();
+
+                foreach (var applicableSku in ApplicableSkus)
+                {
+                    List<KeyValuePair<Product, int>> matchedSkuProductsOnOrder = GetNumberOfMatchedSkuItems(matchedProductsOnOrder, applicableSku);
+
+                    if (matchedSkuProductsOnOrder.Count > 0)
+                    {
+                        skusPresent.Add(applicableSku, true);
+                    }
+                }
+
+                if (CheckValidityOfMultiSku(skusPresent))
+                {
+                    var ordinaryPriceOfAllItems = 0.00f;
+
+                    foreach (var skuItem in ApplicableSkus)
+                    {
+                        var match = matchedProductsOnOrder.Where(order => order.Key.SkuName == skuItem).FirstOrDefault();
+
+                        ordinaryPriceOfAllItems += match.Key.UnitPrice;
+                    }
+
+                    var discount = ordinaryPriceOfAllItems - FixedPrice;
+                    totalPrice -= discount;
+                }
             }
             else
             {
                 throw new PromotionValidationException("Either SingleSku or Combined Sku must be true");
             }
 
-            return validity;
+            return totalPrice;
         }
 
-        private bool CheckMultiSkuValidity(Dictionary<Product, int> matchedProductsOnOrder)
+        private bool CheckValidityOfMultiSku(Dictionary<char, bool> skusPresent)
         {
-            foreach (var applicableSku in ApplicableSkus)
+            foreach (var sku in ApplicableSkus)
             {
-                var matchedSkuProductsOnOrder = matchedProductsOnOrder.Where(a => a.Key.SkuName == applicableSku).ToList();
-
-                if (matchedSkuProductsOnOrder.Count == 0)
+                if (!skusPresent.ContainsKey(sku))
                 {
                     return false;
                 }
@@ -74,20 +112,9 @@ namespace promotionengine.models
             return true;
         }
 
-        private bool CheckSingleSkuValidity(Dictionary<Product, int> matchedProductsOnOrder)
+        private static List<KeyValuePair<Product, int>> GetNumberOfMatchedSkuItems(Dictionary<Product, int> matchedProductsOnOrder, char applicableSku)
         {
-            var applicableSku = ApplicableSkus[0];
-
-            var matchedSkuProductsOnOrder = matchedProductsOnOrder.Where(a => a.Key.SkuName == applicableSku).ToList();
-
-            int totalUnitsOfMatchedSku = 0;
-
-            foreach (var orderProduct in matchedSkuProductsOnOrder)
-            {
-                totalUnitsOfMatchedSku += orderProduct.Value;
-            }
-
-            return totalUnitsOfMatchedSku >= NumUnitsRequired ? true : false;
+            return matchedProductsOnOrder.Where(a => a.Key.SkuName == applicableSku && a.Value > 0).ToList();
         }
     }
 }

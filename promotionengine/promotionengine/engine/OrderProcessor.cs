@@ -35,8 +35,7 @@ namespace promotionengine.engine
 
         public OrderOutput ProcessOrder(Order order)
         {
-            Dictionary<Product, int> matchedProductsOnOrder = new Dictionary<Product, int>();
-            List<Promotion> activePromotions = new List<Promotion>();
+            Dictionary<Product, int> matchedProductsOnOrder = new Dictionary<Product, int>();            
             float totalPrice = 0.00f;
 
             //loop through order items
@@ -55,20 +54,17 @@ namespace promotionengine.engine
                     matchedProductsOnOrder.Add(matchedProduct, orderItem.Amount);
                 }
             }            
-                        
-            foreach (var promotion in PromotionList)
-            {
-                //Is promotion valid based on combinedOrderItems?
-                if (promotion.CheckValidity(matchedProductsOnOrder))
-                {
-                    activePromotions.Add(promotion);
-                }                
-            }
 
             //calculate total gross price
             foreach (var item in matchedProductsOnOrder)
             {
                 totalPrice += item.Key.UnitPrice * item.Value;
+            }
+
+            foreach (var promotion in PromotionList)
+            {
+                //Is promotion valid based on combinedOrderItems?
+                totalPrice = promotion.CheckAndApplyPromotion(matchedProductsOnOrder, totalPrice);
             }
 
             //return output
