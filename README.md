@@ -18,3 +18,12 @@ You will then receive an OrderResults object with the calculated price after pro
 # Test coverage
 
 The unit test project tests various combinations of the promotions to ensure that the current promotions get processed correctly.
+
+The tests use X Unit Theory so that multiple test scenarios can be tested with the maximum re-use.
+
+# Further improvements
+
+If allocating more time to the code the following changes are recommended:
+
+- Extra unit test coverage for methods such as validation
+- Moving Product/Promotion data into a repository of some kind
